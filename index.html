@@ -59,6 +59,11 @@ h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;margin:0
 .count div{min-width:62px;border:1px solid var(--gold);border-radius:12px;padding:10px 6px}
 .count b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(1.8rem,7vw,2.8rem);line-height:1;color:var(--gold)}
 .count small{font-size:.78rem;opacity:.8}
+.wd{margin-top:34px;text-align:center}
+.wd[hidden]{display:none!important}
+.wd b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(1.8rem,7vw,2.8rem);line-height:1.1;color:var(--gold)}
+.wd small{display:block;margin-top:8px;font-size:.95rem;opacity:.85}
+.fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:96}
 section{max-width:860px;margin:0 auto;padding:68px 24px}
 h2{font-size:clamp(2rem,6vw,3rem);text-align:center;margin-bottom:.3em;color:var(--accent)}
 h2 small{display:block;font-family:"Noto Serif Devanagari",serif;font-weight:500;font-size:.45em;color:var(--saffron);margin-top:6px}
@@ -141,6 +146,9 @@ fieldset.teams legend{font-weight:400;margin-bottom:8px;padding:0}
 button.solid{padding:14px 28px;border-radius:999px;border:0;background:var(--accent);color:var(--bg);font:500 1rem "Jost",sans-serif;cursor:pointer}
 button.solid:focus-visible,a.wa:focus-visible{outline:3px solid var(--saffron);outline-offset:3px}
 #rsvpNote{min-height:1.5em;margin:0}
+#changeWrap[hidden]{display:none!important}
+.chg{background:none;border:0;padding:8px 10px;font:inherit;font-weight:500;color:var(--accent);text-decoration:underline;cursor:pointer}
+.chg:focus-visible{outline:3px solid var(--saffron);outline-offset:3px}
 a.wa{display:inline-block;margin-top:8px;font-weight:500;color:var(--accent)}
 .board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-top:30px;text-align:center}
 .side{background:var(--surface);border:2px solid var(--gold);border-radius:16px;padding:20px 8px}
@@ -183,11 +191,11 @@ a.wa{display:inline-block;margin-top:8px;font-weight:500;color:var(--accent)}
   <p class="shloka">॥ श्री गणेशाय नमः ॥</p>
   <p class="invite">With the blessings of our families,<br>we invite you to celebrate the</p>
   <p class="union">Timeless Union <span>of</span></p>
-  <h1 class="names">Lt. Esha Bisht</h1>
-  <p class="par">D/o Shri Gopal Singh Bisht and Smt. Bimla Bisht</p>
-  <p class="weds">with</p>
-  <p class="names">Lt. Anupam Singh</p>
+  <h1 class="names">Lt. Anupam Singh</h1>
   <p class="par">S/o Shri Amrish Singh and Smt. Sunita Singh</p>
+  <p class="weds">with</p>
+  <p class="names">Lt. Esha Bisht</p>
+  <p class="par">D/o Shri Gopal Singh Bisht and Smt. Bimla Bisht</p>
   <div class="orn" aria-hidden="true">❖</div>
   <p class="when">24 November 2026 · New Delhi</p>
   <div class="count" aria-live="off">
@@ -196,6 +204,7 @@ a.wa{display:inline-block;margin-top:8px;font-weight:500;color:var(--accent)}
     <div><b id="m">–</b><small>minutes</small></div>
     <div><b id="s">–</b><small>seconds</small></div>
   </div>
+  <div class="wd" id="wd" hidden><b id="wdt">It’s our Wedding Day!</b><small id="wds">आज हमारा शुभ विवाह है</small></div>
 </header>
 <div class="toran" aria-hidden="true"></div>
 
@@ -268,6 +277,7 @@ a.wa{display:inline-block;margin-top:8px;font-weight:500;color:var(--accent)}
       <button class="solid" id="sendBtn" type="submit">Send RSVP</button>
     </div>
     <p id="rsvpNote" class="lead" aria-live="polite"></p>
+    <p id="changeWrap" hidden style="text-align:center;margin:6px 0 0"><button type="button" id="changeBtn" class="chg">Change my RSVP</button></p>
   </form>
 </section>
 
@@ -291,14 +301,23 @@ a.wa{display:inline-block;margin-top:8px;font-weight:500;color:var(--accent)}
 </footer>
 
 <script>
-var target=new Date("2026-11-24T19:00:00+05:30").getTime();
+var target=new Date("2026-11-24T00:00:00+05:30").getTime();
+var endOfDay=target+86400000,introOpen=false,fwStarted=false;
 function tick(){
-  var s=Math.floor(Math.max(0,target-Date.now())/1000);
-  var set=function(id,v){document.getElementById(id).textContent=v;};
-  set("d",Math.floor(s/86400));
-  set("h",Math.floor(s%86400/3600));
-  set("m",Math.floor(s%3600/60));
-  set("s",s%60);
+  var now=Date.now(),set=function(id,v){document.getElementById(id).textContent=v;};
+  if(now<target){
+    var s=Math.floor((target-now)/1000);
+    set("d",Math.floor(s/86400));set("h",Math.floor(s%86400/3600));set("m",Math.floor(s%3600/60));set("s",s%60);
+    return;
+  }
+  document.querySelector(".count").style.display="none";
+  var wd=document.getElementById("wd");wd.hidden=false;
+  if(now<endOfDay){
+    set("wdt","It’s our Wedding Day!");set("wds","आज हमारा शुभ विवाह है");
+    if(introOpen)startFireworks();
+  }else{
+    set("wdt","Thank you for celebrating with us");set("wds","आप सभी का धन्यवाद");
+  }
 }
 tick();setInterval(tick,1000);
 var env=document.getElementById("env"),intro=document.getElementById("intro"),opening=false;
@@ -309,6 +328,39 @@ song.addEventListener("play",setMusicUI);song.addEventListener("pause",setMusicU
 // Music stops at 1:42 of the original track. The file starts at 0:30, so that is 72s in. It fades out over the last 3s.
 var STOP_AT=72;
 song.addEventListener("timeupdate",function(){var t=song.currentTime;if(t>=STOP_AT){song.pause();song.currentTime=0;song.volume=1;}else if(t>=STOP_AT-3){song.volume=Math.max(0,(STOP_AT-t)/3);}});
+// Fireworks for 15 seconds on the Wedding Day
+function startFireworks(){
+  if(fwStarted)return;fwStarted=true;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var cv=document.createElement('canvas');cv.className='fw';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+  var ctx=cv.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2),W=0,H=0;
+  function size(){W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
+  size();window.addEventListener('resize',size);
+  var cols=['#F6CF86','#E8A93B','#FF9F43','#F7A8B8','#FFF1D0','#FF6F61'];
+  var rockets=[],sparks=[],DUR=15000,t0=null,lastLaunch=0,last=0,done=false;
+  function launch(){rockets.push({x:W*(0.12+Math.random()*0.76),y:H+8,ty:H*(0.12+Math.random()*0.38),v:H/75*(0.9+Math.random()*0.25),c:cols[Math.floor(Math.random()*cols.length)]});}
+  function burst(x,y,c){var n=46+Math.floor(Math.random()*20);for(var k=0;k<n;k++){var a=Math.PI*2*k/n+Math.random()*0.1,sp=1.4+Math.random()*3;sparks.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,decay:0.012+Math.random()*0.012,c:Math.random()<0.25?'#FFFFFF':c});}}
+  function stop(){if(done)return;done=true;window.removeEventListener('resize',size);cv.remove();}
+  function frame(t){
+    if(done)return;
+    if(t0===null){t0=t;last=t;lastLaunch=t-1000;}
+    var dt=Math.min(3,(t-last)/16.67);last=t;var el=t-t0;
+    ctx.globalCompositeOperation='destination-out';ctx.fillStyle='rgba(0,0,0,'+Math.min(1,0.2*dt)+')';ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='source-over';
+    if(el<DUR-2500&&t-lastLaunch>380+Math.random()*420){launch();lastLaunch=t;}
+    rockets=rockets.filter(function(r){
+      r.y-=r.v*dt;ctx.globalAlpha=1;ctx.fillStyle=r.c;ctx.beginPath();ctx.arc(r.x,r.y,2,0,6.2832);ctx.fill();
+      if(r.y<=r.ty){burst(r.x,r.y,r.c);return false;}return true;});
+    sparks=sparks.filter(function(p){
+      p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=0.04*dt;p.vx*=0.992;p.life-=p.decay*dt;
+      if(p.life<=0)return false;ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,6.2832);ctx.fill();return true;});
+    ctx.globalAlpha=1;
+    if(el>=DUR&&!rockets.length&&!sparks.length){stop();return;}
+    if(el>DUR+1500){stop();return;}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
 // Gentle shower of small flowers when the invitation opens
 function startPetals(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -337,7 +389,7 @@ function openCard(){
   musicBtn.classList.add("show");setMusicUI();
   env.classList.add("opened");
   document.getElementById("tap").style.visibility="hidden";
-  setTimeout(function(){intro.classList.add("open");document.body.classList.remove("locked");window.scrollTo(0,0);startPetals();},1900);
+  setTimeout(function(){intro.classList.add("open");document.body.classList.remove("locked");window.scrollTo(0,0);startPetals();introOpen=true;if(Date.now()>=target&&Date.now()<endOfDay)startFireworks();},1900);
 }
 env.addEventListener("click",openCard);
 env.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openCard();}});
@@ -369,11 +421,18 @@ attendSel.addEventListener("change",syncAttend);syncAttend();
 function clampGuests(){var v=guestsIn.value.replace(/[^0-9]/g,"");if(v!==""){v=String(Math.min(20,parseInt(v,10)));if(v==="0")v="1";}if(guestsIn.value!==v)guestsIn.value=v;}
 guestsIn.addEventListener("input",clampGuests);
 guestsIn.addEventListener("blur",function(){clampGuests();if(guestsIn.value==="")guestsIn.value="1";});
-var form=document.getElementById("rsvpForm"),sendBtn=document.getElementById("sendBtn"),busy=false;
-var alreadySent=false;
-try{alreadySent=localStorage.getItem("weddingRsvpSent")==="1";}catch(e4){}
-function lockSent(){sendBtn.disabled=true;sendBtn.textContent="RSVP Sent ✓";}
+var form=document.getElementById("rsvpForm"),sendBtn=document.getElementById("sendBtn"),changeWrap=document.getElementById("changeWrap"),changeBtn=document.getElementById("changeBtn"),busy=false,changing=false;
+var alreadySent=false,prevName="";
+try{alreadySent=localStorage.getItem("weddingRsvpSent")==="1";prevName=localStorage.getItem("weddingRsvpName")||"";}catch(e4){}
+function lockSent(label){sendBtn.disabled=true;sendBtn.textContent=label||"RSVP Sent ✓";changeWrap.hidden=false;}
 if(alreadySent){lockSent();note.textContent="Your RSVP has already been received. Thank you!";}
+changeBtn.addEventListener("click",function(){
+  changing=true;changeWrap.hidden=true;sendBtn.disabled=false;sendBtn.textContent="Send updated RSVP";
+  note.textContent="You can update your reply below and send it again.";
+  try{var sd=JSON.parse(localStorage.getItem("weddingRsvpData")||"null");
+    if(sd){document.getElementById("gname").value=sd.name||"";var rr=document.querySelector('input[name="team"][value="'+sd.team+'"]');if(rr)rr.checked=true;attendSel.selectedIndex=sd.attend===1?1:0;syncAttend();if(sd.guests)guestsIn.value=sd.guests;document.getElementById("gmsg").value=sd.message||"";}}catch(e7){}
+  document.getElementById("gname").focus();
+});
 form.addEventListener("submit",function(e){
   e.preventDefault();
   if(busy||sendBtn.disabled)return;
@@ -387,14 +446,20 @@ form.addEventListener("submit",function(e){
   data.append("guests",coming?String(Math.min(20,Math.max(1,parseInt(guestsIn.value,10)||1))):"");
   data.append("message",document.getElementById("gmsg").value.trim().slice(0,200));
   data.append("sentTo","Website");
+  data.append("change",changing?"1":"0");
+  data.append("prevName",changing?prevName:"");
   try{localStorage.setItem("weddingTeam",team);}catch(e2){}
   if(!SHEET_URL){note.textContent="Your RSVP could not be sent right now. Please try again later.";return;}
   busy=true;sendBtn.disabled=true;sendBtn.textContent="Sending…";note.textContent="";
   fetch(SHEET_URL,{method:"POST",mode:"no-cors",body:data}).then(function(){
-    busy=false;lockSent();try{localStorage.setItem("weddingRsvpSent","1");}catch(e5){}var key=team==="Team Bride"?"bride":"groom";SCORE[key]++;renderScore();setTimeout(function(){loadScore(key,SCORE[key]);},2500);
-    note.textContent=coming?("Thank you, "+name+"! Your RSVP is received. You’re on "+team+"."):("Thank you, "+name+". We’ll miss you, and thank you for letting us know.");
+    var wasChange=changing;
+    busy=false;changing=false;lockSent(wasChange?"RSVP Updated ✓":"RSVP Sent ✓");
+    try{localStorage.setItem("weddingRsvpSent","1");localStorage.setItem("weddingRsvpName",name);prevName=name;localStorage.setItem("weddingRsvpData",JSON.stringify({name:name,team:team,attend:attendSel.selectedIndex,guests:coming?data.get("guests"):"",message:data.get("message")}));}catch(e5){}
+    if(wasChange){setTimeout(function(){loadScore();},2500);setTimeout(function(){loadScore();},7000);}
+    else{var key=team==="Team Bride"?"bride":"groom";SCORE[key]++;renderScore();setTimeout(function(){loadScore(key,SCORE[key]);},2500);}
+    note.textContent=wasChange?("Thank you, "+name+"! Your RSVP has been updated."):(coming?("Thank you, "+name+"! Your RSVP is received. You’re on "+team+"."):("Thank you, "+name+". We’ll miss you, and thank you for letting us know."));
   }).catch(function(){
-    busy=false;sendBtn.disabled=false;sendBtn.textContent="Send RSVP";
+    busy=false;sendBtn.disabled=false;sendBtn.textContent=changing?"Send updated RSVP":"Send RSVP";
     note.textContent="Couldn’t send your RSVP. Please check your internet connection and try again.";
   });
 });
